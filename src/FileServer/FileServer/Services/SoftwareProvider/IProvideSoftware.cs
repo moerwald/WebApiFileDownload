@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace FileServer.Services.SoftwareProvider
 {
     public interface IProvideSoftware
     {
-        Task<string> GetPathForLatestSoftwareAsync(string directoryToCheck);
+        Task<string> GetPathForLatestSoftwareAsync(CancellationToken token);
     }
 }
