@@ -1,6 +1,7 @@
-﻿using System;
+﻿using FileServer.Config;
+using Microsoft.Extensions.Options;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -10,25 +11,34 @@ namespace FileServer.Services.SoftwareProvider
 {
     public class GetHighestSoftwareVersion : IProvideSoftware
     {
-        private readonly CancellationToken _token;
         private readonly IProvideFilesInDirectory _provideFilesInDirectory;
+        private readonly FileScanConfig _config;
+        private readonly Regex _regex;
 
-        public GetHighestSoftwareVersion(CancellationToken token, IProvideFilesInDirectory provideFilesInDirectory)
+        public GetHighestSoftwareVersion(IProvideFilesInDirectory provideFilesInDirectory,
+                                         IOptions<FileScanConfig> options)
         {
-            _token = token;
             _provideFilesInDirectory = provideFilesInDirectory;
+            _config = options.Value;
+            _regex = new Regex(_config.Filter, RegexOptions.Compiled);
         }
 
-        public async Task<string> GetPathForLatestSoftwareAsync(string directoryToCheck)
+        public async Task<string> GetPathForLatestSoftwareAsync(CancellationToken token)
         {
-            var files = await _provideFilesInDirectory.GetFilesAsync(directoryToCheck, "*.zip", _token);
+            var foundFiles = new List<string>();
 
-            // Order files format: blablabla.1.2.3.4.zip
-            var filesWithVersionInName = files.Where(f => Regex.IsMatch(f, @"(?<version>(\d\.){ 3}\d)")).Select(f => f);
+            foreach (var d  in _config.Directories)
+                foundFiles.AddRange(
+                    await _provideFilesInDirectory.GetFilesAsync(d, "*", token));
 
+            var matches = foundFiles.Select(f => new { Match = _regex.Match(f), FilePath = f })
+                                    .Where(x => x.Match.Success);
+
+            // Todo add natural sort
+            var pathToHighestVersion = matches.OrderByDescending(m => m.Match.Groups[_config.CaptureGroupName].Value).First();
 
             // return biggest one
-            return null;
+            return pathToHighestVersion.FilePath;
         }
 
 
