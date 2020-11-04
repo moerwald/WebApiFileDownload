@@ -40,50 +40,5 @@ namespace FileServer.Services.SoftwareProvider
             // return biggest one
             return pathToHighestVersion.FilePath;
         }
-
-
-        //public void CheckForNewFiles()
-        //{
-        //    try
-        //    {
-        //        using var watcher = new FileSystemWatcher
-        //        {
-        //            Path = @"C:\temp\software",
-
-        //            // Watch for changes in LastAccess and LastWrite times, and
-        //            // the renaming of files or directories.
-        //            NotifyFilter = NotifyFilters.LastAccess
-        //                             | NotifyFilters.LastWrite
-        //                             | NotifyFilters.FileName
-        //                             | NotifyFilters.DirectoryName,
-
-        //            // Only watch text files.
-        //            Filter = "*.zip"
-        //        };
-
-        //        // Add event handlers.
-        //        //watcher.Changed += OnChanged;
-        //        watcher.Created += OnChanged;
-        //        //watcher.Deleted += OnChanged;
-        //        //watcher.Renamed += OnRenamed;
-
-        //        // Begin watching.
-        //        watcher.EnableRaisingEvents = true;
-
-        //        // Wait for the user to quit the program.
-        //        while (_token.IsCancellationRequested == false)
-        //            Thread.Sleep(1000);
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //    }
-
-        //}
-
-        //private void OnChanged(object sender, FileSystemEventArgs e)
-        //{
-        //    e.FullPath;
-        //}
     }
 }
