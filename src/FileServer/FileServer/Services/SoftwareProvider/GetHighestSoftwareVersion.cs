@@ -1,4 +1,5 @@
-﻿using FileServer.Config;
+﻿using System;
+using FileServer.Config;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -31,12 +32,18 @@ namespace FileServer.Services.SoftwareProvider
                 foundFiles.AddRange(
                     await _provideFilesInDirectory.GetFilesAsync(d, "*", token));
 
-            var matches = foundFiles.Select(f => new { Match = _regex.Match(f), FilePath = f })
-                                    .Where(x => x.Match.Success);
+            var matches = foundFiles.Select(f => new
+            {
+                Match = _regex.Match(f),
+                FilePath = f
+            }).Where(x => x.Match.Success).Select(x => new
+            {
+                Version = new Version( x.Match.Groups[_config.CaptureGroupName].Value),
+                x.FilePath
+            }); ;
 
             // Todo add natural sort
-            var pathToHighestVersion = matches.OrderByDescending(m => m.Match.Groups[_config.CaptureGroupName].Value).First();
-
+            var pathToHighestVersion = matches.OrderByDescending(m => m.Version).First(); 
             // return biggest one
             return pathToHighestVersion.FilePath;
         }
