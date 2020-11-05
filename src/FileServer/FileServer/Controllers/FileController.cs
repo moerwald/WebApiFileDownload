@@ -27,7 +27,7 @@ namespace FileServer.Controllers
         public async Task<IActionResult> DownloadFile(CancellationToken token)
         {
             var file = await _provideSoftware.GetPathForLatestSoftwareAsync(token);
-            var fs = new FileStream(file, FileMode.Open);
+            var fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
             return File(fs, "application /octet-stream", Path.GetFileName(file));
         }
     }
